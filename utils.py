@@ -1,6 +1,5 @@
 # coding: utf-8
 
-
 # FNV-1a Hash Function
 def dht_hash(text, seed=0, maximum=1024):
     FNV_prime = 16777619
