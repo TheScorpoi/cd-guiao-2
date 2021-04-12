@@ -19,6 +19,10 @@ example (put and get objects from the DHT):
 $ python3 example.py
 ```
 
+## References
+
+[original paper](https://pdos.csail.mit.edu/papers/ton:chord/paper-ton.pdf)
+
 ## Authors
 
 * **Mário Antunes** - [mariolpantunes](https://github.com/mariolpantunes)
