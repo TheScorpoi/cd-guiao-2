@@ -11,11 +11,19 @@ def dht_hash(text, seed=0, maximum=2**10):
 
 def contains_predecessor(identification, predecessor, node):
     """ Check node (id) is contained between predecessor and identification."""
-    #TODO
-    return False
-
+    if predecessor > node < identification:# node > predecessor and node < identification
+        return True
+    elif node > predecessor > identification: # predecessor < node and predecessor > identification
+        (100 > 400 > 300)
+        return True
+    else:
+        return False
 
 def contains_successor(identification, successor, node):
     """ Check node (id) is contained between identification and successor."""
-    #TODO
-    return False
+    if  identification < node <= successor: #(100 < 200 <= 300)
+        return True
+    elif successor < identification and (node < successor):
+        return True
+    else:
+        return False
