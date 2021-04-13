@@ -18,6 +18,7 @@ def contains_predecessor(identification, predecessor, node):
         return True
     else:
         return False
+    
 
 def contains_successor(identification, successor, node):
     """ Check node (id) is contained between identification and successor."""
