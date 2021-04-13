@@ -184,12 +184,8 @@ class DHTNode(threading.Thread):
         key_hash = dht_hash(key)
         self.logger.debug("Put: %s %s", key, key_hash)
 
-        # TODO Replace next code:
-        flag = True
-        while flag:
-            if contains_successor(self.identification, self.successor_id, key_hash):
-                flag = False
-                self.keystore[key] = value
+        #TODO Replace next code:
+        self.send(address, {"method": "NACK"})
 
         self.send(address, {"method": "ACK"})
 
@@ -203,8 +199,8 @@ class DHTNode(threading.Thread):
         key_hash = dht_hash(key)
         self.logger.debug("Get: %s %s", key, key_hash)
 
-        # TODO Replace next code:
-        self.send(address, {"method": "ACK"})
+        #TODO Replace next code:
+        self.send(address, {"method": "NACK"})
 
     def run(self):
         self.socket.bind(self.addr)
