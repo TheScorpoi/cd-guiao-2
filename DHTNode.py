@@ -181,7 +181,7 @@ class DHTNode(threading.Thread):
         self.logger.debug("Put: %s %s", key, key_hash)
 
         #TODO Replace next code:
-        self.send(address, {"method": "ACK"})
+        self.send(address, {"method": "NACK"})
 
 
     def get(self, key, address):
@@ -195,7 +195,7 @@ class DHTNode(threading.Thread):
         self.logger.debug("Get: %s %s", key, key_hash)
 
         #TODO Replace next code:
-        self.send(address, {"method": "ACK"})
+        self.send(address, {"method": "NACK"})
 
 
     def run(self):
