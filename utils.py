@@ -9,13 +9,7 @@ def dht_hash(text, seed=0, maximum=2**10):
     return h % maximum
 
 
-def contains_predecessor(identification, predecessor, node):
-    """ Check node (id) is contained between predecessor and identification."""
-    #TODO
-    return False
-
-
-def contains_successor(identification, successor, node):
-    """ Check node (id) is contained between identification and successor."""
+def contains(begin, end, node):
+    """Check node is contained between begin and end in a ring."""
     #TODO
     return False
