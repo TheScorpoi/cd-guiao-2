@@ -27,3 +27,7 @@ def contains_successor(identification, successor, node):
         return True
     else:
         return False
+def contains(begin, end, node):
+    """Check node is contained between begin and end in a ring."""
+    #TODO
+    return False
