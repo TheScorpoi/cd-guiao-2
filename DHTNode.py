@@ -175,13 +175,16 @@ class DHTNode(threading.Thread):
         self.logger.debug("Put: %s %s", key, key_hash)
 
         #TODO Replace next code:
+        
+        proto_msg_client = {"method": "PUT", "args":{"key": key, "value": value}}     
+        proto_msg_nodes = {"method": "PUT", "args":{"key": key, "value": value, 'from': address}} 
+        
         if contains(self.id, self.successor_id, key_hash):
             self.keystore[key] = value
+            self.send(address , {"method": "ACK"})
+        else:
+            self.send(self.successor_addr , proto_msg_nodes)
 
-        #f"{{\"command\": \"{self._command}\", \"channel\": \"{self._channel}\"}}"
-        proto_msg_client = {"method": "PUT", "args":{"key": key, "value": value}}     
-        proto_msg_nodes = {"method": "PUT", "args":{"key": key, "value": value, 'from': address}}      
-        
         self.send(address, {"method": "NACK"})
 
 
@@ -199,6 +202,15 @@ class DHTNode(threading.Thread):
         proto_msg_client = {"method": "GET", "args":{"key": key}} 
         proto_msg_nodes = {"method": "GET", "args":{"key": key, "from": address}}
          
+        if(contains(self.id , self.successor_id , key_hash)):
+            value = self.keystore[key]
+            self.send(address , {"method": "ACK"})
+           
+        else:
+            self.send(self.successor_addr , proto_msg_nodes)
+
+
+
         self.send(address, {"method": "NACK"})
 
 
