@@ -1,33 +1,6 @@
-"""Tests two clients."""
+"""Tests finger table."""
 import pytest
-import time
-from DHTClient import DHTClient
-from DHTNode import DHTNode, FingerTable
-
-
-@pytest.fixture(scope="session", autouse=True)
-def node():
-    node = DHTNode(("localhost", 6000), ("localhost", 5000))
-    node.start()
-    time.sleep(10)
-    yield node
-    node.done = True
-    node.join()
-
-
-@pytest.fixture(scope="session", autouse=True)
-def node2():
-    node = DHTNode(("localhost", 3000), ("localhost", 5000))
-    node.start()
-    time.sleep(10)
-    yield node
-    node.done = True
-    node.join()
-
-
-@pytest.fixture()
-def client():
-    return DHTClient(("localhost", 5000))
+from DHTNode import FingerTable
 
 
 def test_finger_table():
@@ -61,40 +34,4 @@ def test_finger_table():
         (2, 12, ("localhost", 5002)),
         (3, 14, ("localhost", 5002)),
         (4, 2, ("localhost", 5004)),
-    ]
-
-
-def test_actual_node_finger_table(node, node2):
-    assert node.identification == 895
-    assert node.successor_id == 959 
-
-    assert node2.identification == 752
-    assert node2.successor_id == 770
-
-    assert isinstance(node.finger_table.as_list, list)
-
-    assert node.finger_table.as_list == [
-        (959, ("localhost", 5001)),
-        (959, ("localhost", 5001)),
-        (959, ("localhost", 5001)),
-        (959, ("localhost", 5001)),
-        (959, ("localhost", 5001)),
-        (959, ("localhost", 5001)),
-        (959, ("localhost", 5001)),
-        (257, ("localhost", 5003)),
-        (257, ("localhost", 5003)),
-		(654, ('localhost', 5004))
-    ]
-
-    assert node2.finger_table.as_list == [
-        (770, ("localhost", 5000)),
-        (770, ("localhost", 5000)),
-        (770, ("localhost", 5000)),
-        (770, ("localhost", 5000)),
-        (770, ("localhost", 5000)),
-        (895, ("localhost", 6000)),
-        (895, ("localhost", 6000)),
-        (895, ("localhost", 6000)),
-        (257, ("localhost", 5003)),
-        (257, ("localhost", 5003)),
     ]
