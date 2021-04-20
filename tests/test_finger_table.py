@@ -36,7 +36,7 @@ def test_finger_table():
     assert f.getIdxFromId(11) == 1
     assert f.getIdxFromId(12) == 2
     assert f.getIdxFromId(14) == 3
-    assert f.getIdxFromId(18) == 4
+    assert f.getIdxFromId(2) == 4
 
     f.fill(11, ("localhost", 5001))
 
@@ -66,7 +66,7 @@ def test_finger_table():
 
 def test_actual_node_finger_table(node, node2):
     assert node.identification == 895
-    assert node.successor_id == 959
+    assert node.successor_id == 959 
 
     assert node2.identification == 752
     assert node2.successor_id == 770
@@ -83,7 +83,7 @@ def test_actual_node_finger_table(node, node2):
         (959, ("localhost", 5001)),
         (257, ("localhost", 5003)),
         (257, ("localhost", 5003)),
-        (581, ("localhost", 4000)),
+		(654, ('localhost', 5004))
     ]
 
     assert node2.finger_table.as_list == [
