@@ -11,19 +11,28 @@ class FingerTable:
 
     def __init__(self, node_id, node_addr, m_bits=10):
         """ Initialize Finger Table."""
-        pass
-
+        self.node_id = node_id
+        self.node_addr = node_addr
+        self.m_bits = m_bits
+        self.finger_table = [(None, None)] * self.m_bits
+        self.counter = 1
+            
     def fill(self, node_id, node_addr):
         """ Fill all entries of finger_table with node_id, node_addr."""
-        pass
-
+        self.finger_table[1] = (node_id, node_addr)
+                 
     def update(self, index, node_id, node_addr):
         """Update index of table with node_id and node_addr."""
-        pass
-
+        self.finger_table[self.counter] = (node_id, node_addr)
+        self.counter += 1
+        if (self.m_bits == self.counter): #when buffer restart
+            self.counter = 1
+                     
     def find(self, identification):
         """ Get node address of closest preceding node (in finger table) of identification. """
-        pass
+        n = getSuccessor()
+        
+        
 
     def refresh(self):
         """ Retrieve finger table entries."""
@@ -40,7 +49,10 @@ class FingerTable:
         """return the finger table as a list of tuples: (identifier, (host, port)).
         NOTE: list index 0 corresponds to finger_table index 1
         """
-        pass
+        finger_table_list = []
+        for i in self.finger_table:
+            finger_table_list.append(i)
+        return finger_table_list
 
 class DHTNode(threading.Thread):
     """ DHT Node Agent. """
@@ -180,12 +192,10 @@ class DHTNode(threading.Thread):
         """
         key_hash = dht_hash(key)
         self.logger.debug("Put: %s %s", key, key_hash)
-
-        #TODO Replace next code:
         
         proto_msg_nodes = {"method": "PUT", "args":{"key": key, "value": value, 'from': address}} 
         
-        if contains(self.identification, self.successor_id, key_hash):
+        if contains(self.predecessor_id, self.identification, key_hash):
             self.keystore[key] = value
             self.send(address , {"method": "ACK"})
         else:
@@ -202,11 +212,9 @@ class DHTNode(threading.Thread):
         key_hash = dht_hash(key)
         self.logger.debug("Get: %s %s", key, key_hash)
 
-        #TODO Replace next code:
-        
         proto_msg_nodes = {"method": "GET", "args":{"key": key, "from": address}}
          
-        if(contains(self.identification , self.successor_id , key_hash)):
+        if(contains(self.predecessor_id, self.identification, key_hash)):
             value = self.keystore[key]
             self.send(address , {"method": "ACK" , "args": value})
            
