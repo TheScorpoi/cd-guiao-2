@@ -45,13 +45,13 @@ def test_finger_table():
 
     f.update(2, 12, ("localhost", 5002))
     f.update(3, 15, ("localhost", 5003))
-    f.update(4, 20, ("localhost", 5004))
+    f.update(4, 17, ("localhost", 5004))
 
     assert f.as_list == [
         (11, ("localhost", 5001)),
         (12, ("localhost", 5002)),
         (15, ("localhost", 5003)),
-        (20, ("localhost", 5004)),
+        (17, ("localhost", 5004)),
     ]
 
     assert f.find(13) == ("localhost", 5002)
