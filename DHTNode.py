@@ -30,9 +30,7 @@ class FingerTable:
                      
     def find(self, identification):
         """ Get node address of closest preceding node (in finger table) of identification. """
-        n = getSuccessor()
-        
-        
+        pass
 
     def refresh(self):
         """ Retrieve finger table entries."""
@@ -193,15 +191,17 @@ class DHTNode(threading.Thread):
         key_hash = dht_hash(key)
         self.logger.debug("Put: %s %s", key, key_hash)
         
-        proto_msg_nodes = {"method": "PUT", "args":{"key": key, "value": value, 'from': address}} 
+        proto_msg_nodes = {"method": "PUT", "args":{"key": key, "value": value, "from": address}} 
         
         if contains(self.predecessor_id, self.identification, key_hash):
-            self.keystore[key] = value
-            self.send(address , {"method": "ACK"})
+            if (key not in self.keystore):
+                self.keystore[key] = value
+                self.send(address , {"method": "ACK"})
+            else:
+                self.send(address, {"method": "NACK"})
         else:
             self.send(self.successor_addr , proto_msg_nodes)
 
-        #self.send(address, {"method": "NACK"})
 
     def get(self, key, address):
         """Retrieve value from DHT.
@@ -215,14 +215,13 @@ class DHTNode(threading.Thread):
         proto_msg_nodes = {"method": "GET", "args":{"key": key, "from": address}}
          
         if(contains(self.predecessor_id, self.identification, key_hash)):
-            value = self.keystore[key]
-            self.send(address , {"method": "ACK" , "args": value})
-           
+            if (key in self.keystore):
+                value = self.keystore[key]
+                self.send(address , {"method": "ACK" , "args": value})
+            else:
+                self.send(address, {"method": "NACK"})
         else:
             self.send(self.successor_addr , proto_msg_nodes)
-
-        #self.send(address, {"method": "NACK"})
-
 
     def run(self):
         self.socket.bind(self.addr)
