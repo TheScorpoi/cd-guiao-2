@@ -202,7 +202,6 @@ class DHTNode(threading.Thread):
         else:
             self.send(self.successor_addr , proto_msg_nodes)
 
-
     def get(self, key, address):
         """Retrieve value from DHT.
         Parameters:
@@ -275,7 +274,8 @@ class DHTNode(threading.Thread):
                     self.stabilize(output["args"], addr)
                 elif output["method"] == "SUCCESSOR_REP":
                     #TODO Implement processing of SUCCESSOR_REP
-                    pass
+                    proto_msg_successor_rep = {"method": "SUCCESSOR", "args": {"req_id": self.identification, "successor_id": self.successor_id, "successor_addr": self.successor_addr }}
+                    self.send(self.addr, proto_msg_successor_rep)
             else:  # timeout occurred, lets run the stabilize algorithm
                 # Ask successor for predecessor, to start the stabilize process
                 self.send(self.successor_addr, {"method": "PREDECESSOR"})
