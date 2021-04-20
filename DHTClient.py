@@ -22,7 +22,7 @@ class DHTClient:
             return False
         return True
 
-    def get(self, key):
+    def get(self, key):        
         """ Retrieve key from DHT."""
         msg = {"method": "GET", "args": {"key": key}}
         pickled_msg = pickle.dumps(msg)

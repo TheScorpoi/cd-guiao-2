@@ -185,14 +185,13 @@ class DHTNode(threading.Thread):
         
         proto_msg_nodes = {"method": "PUT", "args":{"key": key, "value": value, 'from': address}} 
         
-        if contains(self.id, self.successor_id, key_hash):
+        if contains(self.identification, self.successor_id, key_hash):
             self.keystore[key] = value
             self.send(address , {"method": "ACK"})
         else:
             self.send(self.successor_addr , proto_msg_nodes)
 
         #self.send(address, {"method": "NACK"})
-
 
     def get(self, key, address):
         """Retrieve value from DHT.
@@ -207,9 +206,9 @@ class DHTNode(threading.Thread):
         
         proto_msg_nodes = {"method": "GET", "args":{"key": key, "from": address}}
          
-        if(contains(self.id , self.successor_id , key_hash)):
+        if(contains(self.identification , self.successor_id , key_hash)):
             value = self.keystore[key]
-            self.send(address , {"method": "ACK"})
+            self.send(address , {"method": "ACK" , "args": value})
            
         else:
             self.send(self.successor_addr , proto_msg_nodes)
