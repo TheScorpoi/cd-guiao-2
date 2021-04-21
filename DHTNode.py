@@ -19,14 +19,19 @@ class FingerTable:
             
     def fill(self, node_id, node_addr):
         """ Fill all entries of finger_table with node_id, node_addr."""
-        self.finger_table[self.counter] = (node_id, node_addr)
+        self.finger_table[0]  = (node_id,node_addr)
+        #self.finger_table[self.counter - 1] = ((node_id + 2**self.counter) % 2**self.m_bits , node_addr)
+
+        print(self.finger_table)
+    def update(self, index, node_id, node_addr):
+        """Update index of table with node_id and node_addr."""
+        self.finger_table[self.counter] = ((node_id + 2**self.counter) % 2**self.m_bits, node_addr)
         self.counter += 1
         if (self.m_bits == self.counter): #when buffer restart
             self.counter = 1
-    
-    def update(self, index, node_id, node_addr):
-        """Update index of table with node_id and node_addr."""
-                     
+
+        print(self.finger_table)
+
     def find(self, identification):
         """ Get node address of closest preceding node (in finger table) of identification. """
         pass
@@ -37,15 +42,20 @@ class FingerTable:
 
     def getIdxFromId(self, id):
         counterIdx = 0
-        print(self.finger_table)
         for i in self.finger_table:
             counterIdx += 1
+            print(i[0])
             if (id == i[0]):
                 return counterIdx
         return None    
             
     def __repr__(self):
-        pass
+        stringFT = ""
+        #for i in range(len(self.finger_table)):
+            #print("ESTA MERDA")
+            #print(self.finger_table[i])
+            #stringFT += self.finger_table[i] + " "
+        return stringFT
 
     @property
     def as_list(self):
@@ -86,7 +96,7 @@ class DHTNode(threading.Thread):
             self.predecessor_id = None
             self.predecessor_addr = None
 
-        self.finger_table = None    #TODO create finger_table
+        self.finger_table = FingerTable(self.identification, self.addr)  #TODO create finger_table
 
         self.keystore = {}  # Where all data is stored
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -246,6 +256,8 @@ class DHTNode(threading.Thread):
                     self.successor_id = args["successor_id"]
                     self.successor_addr = args["successor_addr"]
                     #TODO fill finger table
+                    self.finger_table.fill(self.successor_id,self.successor_addr) #acho que esta mal
+                    
                     self.inside_dht = True
                     self.logger.info(self)
 
