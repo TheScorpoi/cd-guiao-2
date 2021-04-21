@@ -19,14 +19,13 @@ class FingerTable:
             
     def fill(self, node_id, node_addr):
         """ Fill all entries of finger_table with node_id, node_addr."""
-        self.finger_table[1] = (node_id, node_addr)
-                 
-    def update(self, index, node_id, node_addr):
-        """Update index of table with node_id and node_addr."""
         self.finger_table[self.counter] = (node_id, node_addr)
         self.counter += 1
         if (self.m_bits == self.counter): #when buffer restart
             self.counter = 1
+    
+    def update(self, index, node_id, node_addr):
+        """Update index of table with node_id and node_addr."""
                      
     def find(self, identification):
         """ Get node address of closest preceding node (in finger table) of identification. """
@@ -37,8 +36,14 @@ class FingerTable:
         pass
 
     def getIdxFromId(self, id):
-        pass
-
+        counterIdx = 0
+        print(self.finger_table)
+        for i in self.finger_table:
+            counterIdx += 1
+            if (id == i[0]):
+                return counterIdx
+        return None    
+            
     def __repr__(self):
         pass
 
