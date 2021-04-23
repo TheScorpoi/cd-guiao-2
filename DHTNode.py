@@ -28,20 +28,31 @@ class FingerTable:
     def update(self, index, node_id, node_addr):
         """Update index of table with node_id and node_addr."""
         self.finger_table[index - 1] = (node_id, node_addr)
-        print(self.finger_table[index - 1] )
         self.counter += 1
         #print(self.finger_table)
 
     def find(self, identification):
         """ Get node address of closest preceding node (in finger table) of identification. """
-        for entry in reversed(self.finger_table):
-            if contains(self.node_id, identification, entry[0]):
-                return entry[1]
+        finger_table_sorted = list(reversed(self.finger_table))
+
+        for i in range(len(finger_table_sorted)):
+            if ((finger_table_sorted[i][0] == identification) and (i == len(finger_table_sorted))):
+                return finger_table_sorted[i][1]
+            
+            elif (finger_table_sorted[i][0] <= identification):
+                return finger_table_sorted[i + 1][1]
         
+        return finger_table_sorted[i][1]        
 
     def refresh(self):
         """ Retrieve finger table entries."""
-        pass
+        finger_table_list = []
+        counter = 1
+        for i in self.finger_table:
+            finger_table_list.append((counter, (self.node_id + 2**(counter-1)) % 2**self.m_bits, i[1]))
+            counter += 1
+        return finger_table_list
+
 
     def getIdxFromId(self, id):
         if(id > self.node_id):
@@ -51,10 +62,6 @@ class FingerTable:
             
     def __repr__(self):
         stringFT = ""
-        #for i in range(len(self.finger_table)):
-            #print("ESTA MERDA")
-            #print(self.finger_table[i])
-            #stringFT += self.finger_table[i] + " "
         return stringFT
 
     @property
@@ -96,7 +103,7 @@ class DHTNode(threading.Thread):
             self.predecessor_id = None
             self.predecessor_addr = None
 
-        self.finger_table = FingerTable(self.identification, self.addr)  #TODO create finger_table
+        self.finger_table = FingerTable(self.identification, self.addr)  #create finger table
 
         self.keystore = {}  # Where all data is stored
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
