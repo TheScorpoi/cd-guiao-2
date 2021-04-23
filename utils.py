@@ -8,7 +8,6 @@ def dht_hash(text, seed=0, maximum=2**10):
         h = h * fnv_prime
     return h % maximum
 
-            #800, 300, 300
 def contains(begin, end, node):
     """Check node is contained between begin and end in a ring."""
     if begin < node <= end:

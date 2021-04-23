@@ -5,6 +5,7 @@ import logging
 import pickle
 from utils import dht_hash, contains
 
+import math
 
 class FingerTable:
     """Finger Table."""
@@ -19,35 +20,34 @@ class FingerTable:
             
     def fill(self, node_id, node_addr):
         """ Fill all entries of finger_table with node_id, node_addr."""
-        self.finger_table[0]  = (node_id,node_addr)
+        for i in range(self.m_bits):
+            self.finger_table[i]  = (node_id,node_addr)
         #self.finger_table[self.counter - 1] = ((node_id + 2**self.counter) % 2**self.m_bits , node_addr)
 
-        print(self.finger_table)
+        #print(self.finger_table)
     def update(self, index, node_id, node_addr):
         """Update index of table with node_id and node_addr."""
-        self.finger_table[self.counter] = ((node_id + 2**self.counter) % 2**self.m_bits, node_addr)
+        self.finger_table[index - 1] = (node_id, node_addr)
+        print(self.finger_table[index - 1] )
         self.counter += 1
-        if (self.m_bits == self.counter): #when buffer restart
-            self.counter = 1
-
-        print(self.finger_table)
+        #print(self.finger_table)
 
     def find(self, identification):
         """ Get node address of closest preceding node (in finger table) of identification. """
-        pass
+        for entry in reversed(self.finger_table):
+            if contains(self.node_id, identification, entry[0]):
+                return entry[1]
+        
 
     def refresh(self):
         """ Retrieve finger table entries."""
         pass
 
     def getIdxFromId(self, id):
-        counterIdx = 0
-        for i in self.finger_table:
-            counterIdx += 1
-            print(i[0])
-            if (id == i[0]):
-                return counterIdx
-        return None    
+        if(id > self.node_id):
+            return int( math.log2(id - self.node_id) + 1 )
+        else:
+            return int( math.log2(self.node_id - id) + 1 )  
             
     def __repr__(self):
         stringFT = ""
