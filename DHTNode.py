@@ -17,6 +17,9 @@ class FingerTable:
         self.m_bits = m_bits
         self.finger_table = [(None, None)] * self.m_bits
         self.counter = 1
+        self.getIdxTable = []
+        for i in range (self.m_bits):
+            self.getIdxTable.append((i+1, (self.node_id + 2**i)%2**self.m_bits))
             
     def fill(self, node_id, node_addr):
         """ Fill all entries of finger_table with node_id, node_addr."""
@@ -27,6 +30,9 @@ class FingerTable:
         #print(self.finger_table)
     def update(self, index, node_id, node_addr):
         """Update index of table with node_id and node_addr."""
+        print("SEU FDGP")
+        print(index)
+        print(type(index))
         self.finger_table[index - 1] = (node_id, node_addr)
         self.counter += 1
         #print(self.finger_table)
@@ -49,18 +55,19 @@ class FingerTable:
         finger_table_list = []
         counter = 1
         for i in self.finger_table:
-            self.finger_table[counter-1] = ((self.node_id + 2**(counter-1)) % 2**self.m_bits , i[1])
             finger_table_list.append((counter, (self.node_id + 2**(counter-1)) % 2**self.m_bits, i[1]))
             counter += 1
         return finger_table_list
 
 
     def getIdxFromId(self, id):
-        if(id > self.node_id):
-            return int( math.log2(id - self.node_id) + 1 )
-        else:
-            return int( math.log2(self.node_id - id) + 1 )  
-            
+        for i in self.getIdxTable:
+            print(i)
+            if (i[1]==id):
+                print("asfsfwsdfwefwefwefwefwef")
+                print(i)
+                return i[0]
+
     def __repr__(self):
         stringFT = ""
         return stringFT
@@ -140,7 +147,6 @@ class DHTNode(threading.Thread):
             self.successor_id = identification
             self.successor_addr = addr
             #TODO update finger table
-            self.finger_table.fill(self.successor_id, self.successor_addr)
             args = {"successor_id": self.identification, "successor_addr": self.addr}
             self.send(addr, {"method": "JOIN_REP", "args": args})
         elif contains(self.identification, self.successor_id, identification):
@@ -151,7 +157,6 @@ class DHTNode(threading.Thread):
             self.successor_id = identification
             self.successor_addr = addr
             #TODO update finger table
-            self.finger_table.fill(self.successor_id, self.successor_addr)
             self.send(addr, {"method": "JOIN_REP", "args": args})
         else:
             self.logger.debug("Find Successor(%d)", args["id"])
@@ -165,12 +170,13 @@ class DHTNode(threading.Thread):
         """
         self.logger.debug("Get successor: %s", args)
         #TODO Implement processing of SUCCESSOR message
+        addr = args["addr"]
         id = args["id"]
-        addr = args["from"]
         if contains(self.identification, self.successor_id , id):
             self.send(self.addr, {"method": "SUCCESSOR_REP", "args": {"req_id" : self.identification, "successor_id": self.successor_id, "successor_addr" : self.successor_addr}})
         else:
-            self.send(addr, {"method": "SUCCESSOR", 'args': {"id": id, "from" : addr}})
+            self.send(addr, {"method": "SUCCESSOR", "id": id, "from" : addr})
+        pass
                 
     def notify(self, args):
         """Process NOTIFY message.
@@ -203,6 +209,7 @@ class DHTNode(threading.Thread):
             self.successor_id = from_id
             self.successor_addr = addr
             #TODO update finger table
+            self.finger_table.fill(successor_id , successor_addr)
 
         # notify successor of our existence, so it can update its predecessor record
         args = {"predecessor_id": self.identification, "predecessor_addr": self.addr}
@@ -210,11 +217,8 @@ class DHTNode(threading.Thread):
 
         # TODO refresh finger_table
         for i in self.finger_table.refresh():
-            args_get_sucessor = {"id": i[1], "addr": i[2]}
-            print(args_get_sucessor)
-            self.get_successor(args_get_sucessor)
-            
-            
+            args = {"id": i[1] , "addr": i[2]}
+            print(self.get_successor(args))
 
     def put(self, key, value, address):
         """Store value in DHT.
@@ -310,9 +314,12 @@ class DHTNode(threading.Thread):
                     # Initiate stabilize protocol
                     self.stabilize(output["args"], addr)
                 elif output["method"] == "SUCCESSOR_REP":
-                    #TODO Implement processing of SUCCESSOR_REP, quando recebemos o successor reply atualizameos a finger_table
-                    self.finger_table.update(self.finger_table.getIdxFromId(args["successor_id"], args["successor_id"], args["successor_addr"]))
-                    
+                    #TODO Implement processing of SUCCESSOR_REP
+                    print("REQID {}".format(output["args"]["req_id"]))
+                    print("ID {}".format(output["args"]["successor_id"]))
+                    print("ADDR {}".format(output["args"]["successor_addr"]))
+                    print("ASASFFE {}".format(self.finger_table.getIdxFromId(output["args"]["req_id"])))
+                    self.finger_table.update(self.finger_table.getIdxFromId(output["args"]["req_id"]) , output["args"]["successor_id"] , output["args"]["successor_addr"])
             else:  # timeout occurred, lets run the stabilize algorithm
                 # Ask successor for predecessor, to start the stabilize process
                 self.send(self.successor_addr, {"method": "PREDECESSOR"})
