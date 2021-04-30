@@ -18,6 +18,7 @@ class FingerTable:
         self.finger_table = []
         for i in range(self.m_bits):
             self.finger_table.append((node_id,node_addr))
+        #getIdxTable is a list that stores the index by id
         self.getIdxTable = []
         for i in range (self.m_bits):
             self.getIdxTable.append((i + 1, (self.node_id + 2**(i)) % 2**self.m_bits))
@@ -69,7 +70,10 @@ class FingerTable:
         """return the finger table as a list of tuples: (identifier, (host, port)).
         NOTE: list index 0 corresponds to finger_table index 1
         """
-        return self.finger_table
+        finger_table_list = []
+        for i in self.finger_table:
+            finger_table_list.append(i)
+        return finger_table_list
 
 class DHTNode(threading.Thread):
     """ DHT Node Agent. """
@@ -231,7 +235,7 @@ class DHTNode(threading.Thread):
                 self.send(address , {"method": "ACK"})
             else:
                 self.send(address, {"method": "NACK"})
-                
+
         elif (contains(self.identification,self.successor_id,key_hash)):
             self.send(self.successor_addr,proto_msg_nodes)
 
