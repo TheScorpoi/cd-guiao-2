@@ -16,6 +16,8 @@ class FingerTable:
         self.node_addr = node_addr
         self.m_bits = m_bits
         self.finger_table = []
+        for i in range(self.m_bits):
+            self.finger_table.append((node_id,node_addr))
         self.getIdxTable = []
         for i in range (self.m_bits):
             self.getIdxTable.append((i + 1, (self.node_id + 2**(i)) % 2**self.m_bits))
@@ -23,7 +25,7 @@ class FingerTable:
     def fill(self, node_id, node_addr):
         """ Fill all entries of finger_table with node_id, node_addr."""
         for i in range(self.m_bits):
-            self.finger_table.append((node_id,node_addr))
+            self.finger_table[i] = ((node_id,node_addr))
             
     def update(self, index, node_id, node_addr):
         """Update index of table with node_id and node_addr."""
@@ -35,14 +37,13 @@ class FingerTable:
         """ Get node address of closest preceding node (in finger table) of identification. """
         finger_table_sorted = sorted(self.finger_table)
     
-        for i in range(len(finger_table_sorted)):
-            if ((finger_table_sorted[i][0] == identification) and (i == 0)):
-                return finger_table_sorted[i][1]
-            
-            elif (finger_table_sorted[i][0] >= identification):
-                return finger_table_sorted[i - 1][1]
-            
-        return finger_table_sorted[i][1]        
+        for j in range(len(finger_table_sorted)):
+            if ((finger_table_sorted[j][0] == identification) and (j == 0)):
+                return finger_table_sorted[j][1]
+            elif (finger_table_sorted[j][0] >= identification):
+                return finger_table_sorted[j - 1][1]
+        return finger_table_sorted[j][1] 
+               
 
     def refresh(self):
         """ Retrieve finger table entries."""
@@ -201,7 +202,7 @@ class DHTNode(threading.Thread):
             self.successor_id = from_id
             self.successor_addr = addr
             #TODO update finger table
-            self.finger_table.update(1, self.successor_id , self.successor_addr)
+            self.finger_table.fill(self.successor_id , self.successor_addr)
 
         # notify successor of our existence, so it can update its predecessor record
         args = {"predecessor_id": self.identification, "predecessor_addr": self.addr}
@@ -224,18 +225,18 @@ class DHTNode(threading.Thread):
         
         proto_msg_nodes = {"method": "PUT", "args":{"key": key, "value": value, "from": address}} 
 
-        print("KEY: {}; KEYHASH: {}".format(key, key_hash))
-        
         if contains(self.predecessor_id, self.identification, key_hash):
             if (key not in self.keystore):
                 self.keystore[key] = value
                 self.send(address , {"method": "ACK"})
             else:
                 self.send(address, {"method": "NACK"})
-        else:
-            addrFT = self.finger_table.find(key_hash)
-            self.send(addrFT , proto_msg_nodes)
+                
+        elif (contains(self.identification,self.successor_id,key_hash)):
+            self.send(self.successor_addr,proto_msg_nodes)
 
+        else:
+            self.send(self.finger_table.find(key_hash),  proto_msg_nodes)
         
 
     def get(self, key, address):
@@ -255,8 +256,13 @@ class DHTNode(threading.Thread):
                 self.send(address , {"method": "ACK" , "args": value})
             else:
                 self.send(address, {"method": "NACK"})
+
+        elif (contains(self.identification,self.successor_id,key_hash)):
+            self.send(self.successor_addr,proto_msg_nodes)
+
         else:
-            self.send(self.successor_addr, proto_msg_nodes)
+            self.send(self.finger_table.find(self.successor_id),  proto_msg_nodes)
+
 
 
     def run(self):
