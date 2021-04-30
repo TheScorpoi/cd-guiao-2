@@ -12,7 +12,7 @@ def contains(begin, end, node):
     """Check node is contained between begin and end in a ring."""
     if begin < node <= end:
         return True
-    elif end < begin and (node <= end or node > begin): #I+1 até 1023 e 0 ate S
+    elif end < begin and (node <= end or node > begin):
         return True
     else:
         return False    

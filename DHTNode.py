@@ -201,8 +201,7 @@ class DHTNode(threading.Thread):
             self.successor_id = from_id
             self.successor_addr = addr
             #TODO update finger table
-            self.finger_table.fill(self.successor_id , self.successor_addr)
-            #!fill aqui?
+            self.finger_table.update(1, self.successor_id , self.successor_addr)
 
         # notify successor of our existence, so it can update its predecessor record
         args = {"predecessor_id": self.identification, "predecessor_addr": self.addr}
@@ -224,6 +223,8 @@ class DHTNode(threading.Thread):
         self.logger.debug("Put: %s %s", key, key_hash)
         
         proto_msg_nodes = {"method": "PUT", "args":{"key": key, "value": value, "from": address}} 
+
+        print("KEY: {}; KEYHASH: {}".format(key, key_hash))
         
         if contains(self.predecessor_id, self.identification, key_hash):
             if (key not in self.keystore):
@@ -232,8 +233,10 @@ class DHTNode(threading.Thread):
             else:
                 self.send(address, {"method": "NACK"})
         else:
-            self.send(self.finger_table.find(self.successor_id) , proto_msg_nodes)
+            addrFT = self.finger_table.find(key_hash)
+            self.send(addrFT , proto_msg_nodes)
 
+        
 
     def get(self, key, address):
         """Retrieve value from DHT.
@@ -253,7 +256,8 @@ class DHTNode(threading.Thread):
             else:
                 self.send(address, {"method": "NACK"})
         else:
-            self.send(self.finger_table.find(self.successor_id) , proto_msg_nodes)
+            self.send(self.successor_addr, proto_msg_nodes)
+
 
     def run(self):
         self.socket.bind(self.addr)
