@@ -18,7 +18,7 @@ class FingerTable:
         self.finger_table = []
         self.getIdxTable = []
         for i in range (self.m_bits):
-            self.getIdxTable.append((i+1, (self.node_id + 2**(i))%2**self.m_bits))
+            self.getIdxTable.append((i + 1, (self.node_id + 2**(i)) % 2**self.m_bits))
             
     def fill(self, node_id, node_addr):
         """ Fill all entries of finger_table with node_id, node_addr."""
@@ -28,11 +28,9 @@ class FingerTable:
     def update(self, index, node_id, node_addr):
         """Update index of table with node_id and node_addr."""
         if (len(self.finger_table) > index - 1):
-            self.finger_table.pop(index-1)
-        self.finger_table.insert(index-1, (node_id, node_addr))
+            self.finger_table.pop(index - 1)
+        self.finger_table.insert(index - 1, (node_id, node_addr))
         
-        #print(self.finger_table)
-
     def find(self, identification):
         """ Get node address of closest preceding node (in finger table) of identification. """
         finger_table_sorted = sorted(self.finger_table)
@@ -43,19 +41,20 @@ class FingerTable:
             
             elif (finger_table_sorted[i][0] >= identification):
                 return finger_table_sorted[i - 1][1]
+            
         return finger_table_sorted[i][1]        
 
     def refresh(self):
         """ Retrieve finger table entries."""
         finger_table_list = []
         for i in range(len(self.finger_table)):
-            finger_table_list.append((i+1, (self.node_id + 2**i) % 2**self.m_bits, self.finger_table[i][1]))
+            finger_table_list.append((i + 1, (self.node_id + 2**i) % 2**self.m_bits, self.finger_table[i][1]))
         return finger_table_list
 
 
     def getIdxFromId(self, id):
         for i in self.getIdxTable:
-            if (i[1]==id):
+            if (i[1] == id):
                 return i[0]
 
     def __repr__(self):
@@ -203,7 +202,7 @@ class DHTNode(threading.Thread):
             self.successor_addr = addr
             #TODO update finger table
             self.finger_table.fill(self.successor_id , self.successor_addr)
-            #fill aqui?
+            #!fill aqui?
 
         # notify successor of our existence, so it can update its predecessor record
         args = {"predecessor_id": self.identification, "predecessor_addr": self.addr}
