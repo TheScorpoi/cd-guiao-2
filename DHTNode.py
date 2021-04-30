@@ -224,7 +224,7 @@ class DHTNode(threading.Thread):
         key_hash = dht_hash(key)
         self.logger.debug("Put: %s %s", key, key_hash)
         
-        proto_msg_nodes = {"method": "PUT", "args":{"key": key, "value": value, "from": address}} 
+        proto_msg_nodes = {"method": "PUT", "args":{"key": key, "value": value, "from": address}}  #message_protocol
 
         if contains(self.predecessor_id, self.identification, key_hash):
             if (key not in self.keystore):
